@@ -45,7 +45,7 @@ class ProduitController extends AbstractController
 
         // Paginate the results of the query
         $produits = $paginator->paginate(
-        // Doctrine Query
+            // Doctrine Query
             $produitsQuery,
             // Define the page parameter
             $page,
@@ -62,17 +62,18 @@ class ProduitController extends AbstractController
      */
     public function show($id, \Swift_Mailer $mailer)
     {
+        // Find product with the given ID
         $produit = $this->getDoctrine()
             ->getRepository(Produit::class)
             ->find($id);
 
         if (!$produit) {
-            throw $this->createNotFoundException(
-                'No product found for id '.$id
-            );
+            // If no product has been found => display error msg
+            $this->addFlash('error', 'Le numero du produit n\'existe pas.');
+            // And we comeback to index
+            return $this->redirectToRoute('product_index');
         }
         // or render a template
-        // in the template, print things with {{ product.name }}
          return $this->render('produit/show.html.twig',
              ['produit' => $produit]);
     }
@@ -99,8 +100,9 @@ class ProduitController extends AbstractController
                 $em = $this->getDoctrine()->getManager();
                 $em->persist($produit);
                 $em->flush();
+                // Display a success msg
                 $this->addFlash('success', 'Produit bien enregistrée.');
-
+                // Send mail for the creation product
                 $this->sendMail($mailer, $produit);
                 // We redirect to the viewing page of the newly created product
                 return $this->redirectToRoute('product_show', array('id' => $produit->getId()));
@@ -114,10 +116,19 @@ class ProduitController extends AbstractController
             'form' => $form->createView(),
         ));
     }
+
+    /**
+     * Send mail for the creation product
+     * @param \Swift_Mailer $mailer
+     * @param Produit $produit
+     * @return int
+     */
     private function sendMail(\Swift_Mailer $mailer, Produit $produit)
     {
+        // Retrieve email sender
         $from = $this->getParameter('mailer.from');
         $to = $this->getParameter('mailer.to');
+        // Build the mail
         $message = (new \Swift_Message('Un nouveau produit est cree'))
             ->setFrom($from)
             ->setTo($to)
@@ -129,7 +140,7 @@ class ProduitController extends AbstractController
                 'text/html'
             )
         ;
-
+        // Send the mail
         return $mailer->send($message);
     }
 }
