@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste - {{ parent() }} {% endblock %}
+
+{% block body %}
+    <div class="navigation">
+        {{ knp_pagination_render(produits) }}
+    </div>
+    <table class="table table-striped">
+        <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Description</th>
+            <th>Prix</th>
+        </tr>
+        {% for produit in produits %}
+            <tr>
+                <td>{{ produit.id }} </td>
+                <td>{{ produit.nom }} </td>
+                <td>{{ produit.description }} </td>
+                <td>{{ produit.prix }} </td>
+            </tr>
+        {% endfor %}
+    </table>
+    <div class="navigation">
+        {{ knp_pagination_render(produits) }}
+    </div>
+{% endblock %}

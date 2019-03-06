@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ produit.id }} - {{ parent() }} {% endblock %}
+
+{% block body %}
+    <h1>Nom: {{ produit.nom }} </h1>
+    <p>Description : {{ produit.description }}</p>
+    <p>Prix : {{ produit.prix }}</p>
+{% endblock %}
