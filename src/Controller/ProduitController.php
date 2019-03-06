@@ -77,28 +77,6 @@ class ProduitController extends AbstractController
              ['produit' => $produit]);
     }
 
-    /**
-     * @Route("/edit/{id}")
-     */
-    public function update($id)
-    {
-        $em = $this->getDoctrine()->getManager();
-        $produit = $em->getRepository(Produit::class)
-            ->find($id);
-
-        if (!$produit) {
-            throw $this->createNotFoundException(
-                'No product found for id '.$id
-            );
-        }
-
-        $produit->setNom('Samsung X');
-        $em->flush();
-
-        return $this->redirectToRoute('product_show', [
-            'id' => $produit->getId()
-        ]);
-    }
 
     /**
      * @Route("/create", name="product_add")
@@ -122,6 +100,7 @@ class ProduitController extends AbstractController
                 $em->persist($produit);
                 $em->flush();
                 $this->addFlash('success', 'Produit bien enregistrée.');
+
                 $this->sendMail($mailer, $produit);
                 // We redirect to the viewing page of the newly created product
                 return $this->redirectToRoute('product_show', array('id' => $produit->getId()));
@@ -137,9 +116,11 @@ class ProduitController extends AbstractController
     }
     private function sendMail(\Swift_Mailer $mailer, Produit $produit)
     {
+        $from = $this->getParameter('mailer.from');
+        $to = $this->getParameter('mailer.to');
         $message = (new \Swift_Message('Un nouveau produit est cree'))
-            ->setFrom('etters.ayoub@gmail.com')
-            ->setTo('ayoub.etters@gmail.com')
+            ->setFrom($from)
+            ->setTo($to)
             ->setBody(
                 $this->renderView(
                     'emails/productCreated.html.twig',
